@@ -421,6 +421,11 @@ function bindEvents() {
   $('refreshBtn')?.addEventListener('click', async () => {
     const btn = $('refreshBtn'); btn.classList.add('spinning');
     try {
+      // 先尝试自动发现/更新用户信息
+      const found = await discoverFromTabs();
+      if (found) {
+        await chrome.storage.sync.set({ apiUrl: found.apiUrl, userId: found.userId });
+      }
       await chrome.runtime.sendMessage({action:'refresh'});
       const d = await chrome.runtime.sendMessage({action:'getData'});
       if (d?.timestamp) { currentData=d; renderAll(d); }
