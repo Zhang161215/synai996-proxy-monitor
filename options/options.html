@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synai996 Proxy Monitor - 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo-row">
+        <svg class="logo-icon" viewBox="0 0 32 32" width="36" height="36">
+          <defs>
+            <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#3b82f6"/>
+              <stop offset="100%" style="stop-color:#8b5cf6"/>
+            </linearGradient>
+          </defs>
+          <rect rx="8" width="32" height="32" fill="url(#logo-grad)"/>
+          <text x="16" y="22" text-anchor="middle" fill="white" font-size="16" font-weight="700" font-family="monospace">S</text>
+        </svg>
+        <div>
+          <h1>Synai996 Proxy Monitor</h1>
+          <p class="subtitle">插件设置</p>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Connection Settings -->
+      <section class="card">
+        <h2>连接配置</h2>
+        <div class="import-panel">
+          <div>
+            <div class="import-title">自动导入</div>
+            <div class="import-desc">如果您已在浏览器中登录了 NewAPI，插件可以自动读取当前页面的 URL 和用户信息。</div>
+          </div>
+          <button class="btn btn-secondary" id="importBtn">从标签页导入</button>
+        </div>
+        <div class="field">
+          <label for="apiUrl">API 服务器地址</label>
+          <input type="url" id="apiUrl" placeholder="https://api.synai996.space" />
+          <span class="hint">通常由自动导入填写。您也可以手动编辑。</span>
+        </div>
+        <div class="field">
+          <label for="accessToken">Access Token（可选）</label>
+          <div class="token-input-wrap">
+            <input type="password" id="accessToken" placeholder="输入您的 Access Token" />
+            <button class="btn-icon" id="toggleToken" title="显示/隐藏">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <span class="hint">
+            如果浏览器已有登录 session，则无需填写。作为 session 失效时的备用认证方式。
+          </span>
+        </div>
+        <div class="field">
+          <label for="userId">用户 ID</label>
+          <input type="number" id="userId" placeholder="输入您的数字用户 ID" />
+          <span class="hint">通常由自动导入或自动检测填写。也可手动输入。</span>
+        </div>
+      </section>
+
+      <!-- Test Connection -->
+      <section class="card">
+        <h2>验证</h2>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="testBtn">测试连接</button>
+          <button class="btn btn-secondary" id="saveBtn">保存设置</button>
+        </div>
+        <div id="testResult" class="test-result" hidden></div>
+      </section>
+
+      <!-- Theme -->
+      <section class="card">
+        <h2>外观</h2>
+        <div class="field">
+          <label>主题</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="theme" value="system" checked /> 跟随系统
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="theme" value="light" /> 浅色
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="theme" value="dark" /> 深色
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>图标徽章显示</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="badgeSource" value="wallet" checked /> 钱包余额
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="badgeSource" value="subscription" /> 订阅额度
+            </label>
+          </div>
+          <span class="hint">插件图标上显示的百分比数据来源。</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Synai996 Proxy Monitor v1.0.0</p>
+    </footer>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

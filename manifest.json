@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Synai996 Proxy Monitor",
+  "version": "1.1.0",
+  "description": "一键查看 Synai996 Proxy 的订阅额度、用量统计和 API 密钥状态。零配置，自动检测登录状态。",
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs",
+    "scripting",
+    "cookies"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://synai996.space/*",
+        "https://api.synai996.space/*",
+        "https://*.synai996.space/*"
+      ],
+      "js": ["content/detector.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

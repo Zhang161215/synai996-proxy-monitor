@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synai996 Proxy Monitor</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- ─── 未配置 ─── -->
+  <div id="setupView" class="view" hidden>
+    <div class="setup-wrap">
+      <div class="setup-glow"></div>
+      <div class="setup-logo">
+        <svg viewBox="0 0 48 48" width="48" height="48">
+          <defs><linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4c6fff"/><stop offset="100%" stop-color="#5f8bff"/></linearGradient></defs>
+          <rect rx="14" width="48" height="48" fill="url(#sg)"/>
+          <text x="24" y="33" text-anchor="middle" fill="#fffdf9" font-size="24" font-weight="800" font-family="Outfit,system-ui,sans-serif">S</text>
+        </svg>
+      </div>
+      <h2>Synai996 Proxy</h2>
+      <p>请先登录 NewAPI 控制台，插件将自动检测。</p>
+      <ol class="setup-steps">
+        <li>打开 <a href="https://synai996.space" target="_blank">synai996.space</a> 并登录</li>
+        <li>返回点击下方按钮</li>
+      </ol>
+      <button class="btn-pill btn-primary" id="retryDiscoverBtn">重新检测</button>
+      <button class="btn-text" id="openSettingsBtn">手动配置</button>
+      <div id="setupDebug" class="setup-debug" hidden></div>
+    </div>
+  </div>
+
+  <!-- ─── 加载中 ─── -->
+  <div id="loadingView" class="view" hidden>
+    <div class="loading-wrap">
+      <div class="loading-ring">
+        <svg viewBox="0 0 48 48" width="36" height="36">
+          <rect rx="12" width="48" height="48" fill="url(#sg)"/>
+          <text x="24" y="33" text-anchor="middle" fill="#fffdf9" font-size="24" font-weight="800" font-family="Outfit,system-ui,sans-serif">S</text>
+        </svg>
+      </div>
+      <div class="loading-dots">
+        <span class="ld" id="stepScan">扫描</span>
+        <span class="ld-sep"></span>
+        <span class="ld" id="stepRead">读取</span>
+        <span class="ld-sep"></span>
+        <span class="ld" id="stepFetch">获取</span>
+      </div>
+      <p class="loading-hint" id="loadingHint">正在初始化...</p>
+    </div>
+  </div>
+
+  <!-- ─── 主面板 ─── -->
+  <div id="mainView" class="view" hidden>
+    <header class="topbar">
+      <div class="topbar-l">
+        <svg viewBox="0 0 24 24" width="22" height="22"><rect rx="6" width="24" height="24" fill="url(#tbg)"/><defs><linearGradient id="tbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4c6fff"/><stop offset="100%" stop-color="#5f8bff"/></linearGradient></defs><text x="12" y="17" text-anchor="middle" fill="#fffdf9" font-size="12" font-weight="800" font-family="Outfit,system-ui,sans-serif">S</text></svg>
+        <span class="topbar-name" id="username">—</span>
+        <span class="topbar-badge" id="userGroup">—</span>
+        <span class="topbar-session" id="sessionExpiry" title="认证到期时间" hidden></span>
+      </div>
+      <div class="topbar-r">
+        <button class="top-btn" id="refreshBtn" title="刷新">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+        <button class="top-btn" id="themeBtn" title="主题">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="top-btn" id="settingsBtn" title="设置">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="scroll-area">
+      <nav class="tab-bar">
+        <button class="tab active" data-tab="overview">总览</button>
+        <button class="tab" data-tab="nodes">节点</button>
+      </nav>
+
+      <!-- ─── 总览 ─── -->
+      <div class="tab-panel active" id="tab-overview">
+        <!-- 余额 -->
+        <section class="glass-card quota-hero">
+          <div class="quota-head">
+            <span class="kicker">余额</span>
+            <span class="quota-num" id="walletBalance">$0.00</span>
+          </div>
+          <div class="bar"><div class="bar-fill" id="walletProgress"></div></div>
+          <div class="quota-row">
+            <span>已用 <b id="walletUsed">$0.00</b></span>
+            <span>总计 <b id="walletTotal">$0.00</b></span>
+          </div>
+        </section>
+
+        <!-- 订阅列表 -->
+        <div id="subscriptionsList"></div>
+
+        <!-- 指标 -->
+        <div class="metrics">
+          <div class="metric-card">
+            <span class="metric-label">今日消耗</span>
+            <span class="metric-val" id="todayUsage">$0.00</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">总请求</span>
+            <span class="metric-val" id="requestCount">0</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">日排名</span>
+            <span class="metric-val" id="myRanking">—</span>
+          </div>
+        </div>
+
+        <!-- 趋势 -->
+        <section class="glass-card">
+          <div class="card-head">
+            <span class="kicker">用量趋势</span>
+            <div class="range-group">
+              <button class="range-btn active" data-days="7">7天</button>
+              <button class="range-btn" data-days="30">30天</button>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="usageChart"></canvas></div>
+        </section>
+
+        <!-- 模型 -->
+        <section class="glass-card">
+          <div class="card-head"><span class="kicker">今日模型</span></div>
+          <div class="chart-box chart-box-donut"><canvas id="modelChart"></canvas></div>
+          <div id="modelLegend" class="legend"></div>
+        </section>
+      </div>
+
+      <!-- ─── 节点 ─── -->
+      <div class="tab-panel" id="tab-nodes">
+        <section class="glass-card">
+          <div class="card-head">
+            <span class="kicker">节点测速</span>
+            <button class="top-btn top-btn-sm" id="nodeRefreshBtn" title="重新测速">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            </button>
+          </div>
+          <p class="card-desc">检测各 API 节点的连通性和响应延迟</p>
+          <div id="nodeList" class="node-list"></div>
+        </section>
+
+        <section class="glass-card" id="nodeDetailCard" hidden>
+          <div class="card-head"><span class="kicker" id="nodeDetailTitle">节点详情</span></div>
+          <div id="nodeDetailBody" class="node-detail-body"></div>
+        </section>
+      </div>
+    </div>
+
+    <footer class="bottombar">
+      <span id="lastUpdated">—</span>
+      <a href="#" id="openDashboard">打开控制台</a>
+    </footer>
+  </div>
+
+  <script src="../lib/chart.min.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

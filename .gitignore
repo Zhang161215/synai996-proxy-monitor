@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+._*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Node (以防后续加构建)
+node_modules/
+
+# 打包产物
+*.zip
+*.crx
+*.pem
