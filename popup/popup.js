@@ -197,9 +197,16 @@ function renderSubs(res, plansRes) {
 
 function renderStats(d) {
   if (d.dailyUsage?.data) {
-    const today = new Date().toISOString().split('T')[0];
-    const td = d.dailyUsage.data.find(x => new Date(x.created_at*1000).toISOString().split('T')[0]===today);
-    document.getElementById('todayUsage').textContent = `$${q2usd(td?(td.quota||0):0)}`;
+    // 用本地时区判断今天，并累加所有今日记录的 quota
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    let todayTotal = 0;
+    d.dailyUsage.data.forEach(x => {
+      const dt = new Date(x.created_at * 1000);
+      const ds = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+      if (ds === todayStr) todayTotal += (x.quota || 0);
+    });
+    document.getElementById('todayUsage').textContent = `$${q2usd(todayTotal)}`;
   }
   if (d.ranking?.data) {
     const r = d.ranking.data;
@@ -217,12 +224,18 @@ function renderUsageChart(daily, days) {
   if (!daily?.data?.length) { if (usageChart) usageChart.destroy(); usageChart=null; return; }
 
   const now = new Date(), labels=[], vals=[];
+  // 辅助函数：本地日期字符串
+  const localDateStr = (dt) => `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
   for (let i=days-1;i>=0;i--) {
     const d = new Date(now.getTime()-i*864e5);
-    const ds = d.toISOString().split('T')[0];
+    const ds = localDateStr(d);
     labels.push(d.toLocaleDateString('zh-CN',{month:'short',day:'numeric'}));
-    const pt = daily.data.find(p => new Date(p.created_at*1000).toISOString().split('T')[0]===ds);
-    vals.push(pt?(pt.quota||0)/QUOTA_PER_UNIT:0);
+    // 累加该日期所有记录的 quota
+    let dayTotal = 0;
+    daily.data.forEach(p => {
+      if (localDateStr(new Date(p.created_at*1000)) === ds) dayTotal += (p.quota||0);
+    });
+    vals.push(dayTotal / QUOTA_PER_UNIT);
   }
   const dark = isDark();
   if (usageChart) usageChart.destroy();
